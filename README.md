@@ -45,6 +45,7 @@ python InvoiceExtractor.py
 1. **IMAP Server:** Enter `Gmail` or `Outlook`
 2. **Email Address:** Enter your email address
 3. **Password:** Enter your email password
+   (OR use the ID-Password of Dummy-Gmail provided via personal email on 12/02/2025)
 4. **Filter Type:** Select one of the following:
    - `subject` (to filter emails by subject)
    - `sender` (to filter by email sender)
