@@ -1,3 +1,10 @@
+"""
+Invoice Processing System
+
+This script connects to an email account, extracts invoices from email attachments, performs OCR for text extraction, and 
+stores structured data in a MongoDB database.The system supports duplicate detection and recurring invoice classification.
+""" 
+
 import os
 import imaplib
 import email
@@ -24,9 +31,19 @@ def connect_to_mongo():
         print("Error: Unable to connect to MongoDB. Ensure MongoDB is running.")
         return None, None
 
-# Connectig to the email server
+# Connecting to the email server
 def connect_to_email(imap_server, email_user, email_pass):
-    """Connects to the email server using the given credentials and selects the inbox."""
+    """
+    Connects to the email server using the given credentials and selects the inbox.
+        
+    Args:
+        imap_server (str): IMAP server address (e.g., imap.gmail.com).
+        email_user (str): Email address.
+        email_pass (str): Email password.
+    
+    Returns:
+        imaplib.IMAP4_SSL: IMAP connection object if successful, otherwise None.
+    """
     try:
         mail = imaplib.IMAP4_SSL(imap_server)
         mail.login(email_user, email_pass)
@@ -40,9 +57,19 @@ def connect_to_email(imap_server, email_user, email_pass):
         print("Error connecting to email:", e)
         return None
 
-# Search emails based on filter
+# Searching emails based on filter
 def search_emails(mail, filter_type, filter_value):
-    """Searches for emails in the inbox based on subject, sender, or attachments."""
+    """
+    Searches for emails based on a filter type (subject, sender, or attachments).
+    
+    Args:
+        mail (imaplib.IMAP4_SSL): IMAP connection object.
+        filter_type (str): Type of filter ('subject', 'sender', 'attachments').
+        filter_value (str): Value for the filter.
+    
+    Returns:
+        list: List of email UIDs matching the search criteria.
+    """
     search_filters = {
         "subject": f'(SUBJECT "{filter_value}")',
         "sender": f'(FROM "{filter_value}")',
@@ -61,7 +88,17 @@ def search_emails(mail, filter_type, filter_value):
 
 # Processing email and extracting attachments
 def process_email(mail, email_uid, save_folder="Invoices"):
-    """Processes an email, extracts metadata, and downloads attachments."""
+    """
+    Processes an email to extract metadata and download attachments.
+    
+    Args:
+        mail (imaplib.IMAP4_SSL): IMAP connection object.
+        email_uid (bytes): UID of the email to process.
+        save_folder (str): Directory to save attachments.
+    
+    Returns:
+        dict: Extracted metadata.
+    """
     try:
         os.makedirs(save_folder, exist_ok=True)
         result, email_data = mail.fetch(email_uid, "(RFC822)")
@@ -107,7 +144,7 @@ def extract_text_from_attachments(attachments):
 
 # Extracting structured invoice data
 def extract_invoice_data(text):
-    """Extracts key invoice data such as invoice number, amount, due date, and payment status from text."""
+    """Extracts key invoice data such as invoice number, amount, due date, and payment status from text using regular expression (re)."""
     invoice_details = {}
     invoice_details["invoice_number"] = re.search(r"([A-Z]{3,5}\d{6,8})", text, re.IGNORECASE).group(1) if re.search(r"([A-Z]{3,5}\d{6,8})", text, re.IGNORECASE) else "Unknown"
     invoice_details["amount"] = re.search(r"€\s?([\d,]+\.\d{2})", text).group(1) if re.search(r"€\s?([\d,]+\.\d{2})", text) else "Unknown"
@@ -115,9 +152,9 @@ def extract_invoice_data(text):
     invoice_details["payment_status"] = "Paid" if re.search(r"\bPaid\b", text, re.IGNORECASE) else "Unpaid"
     return invoice_details
 
-# Storing extracted data in MongoDB and print structured JSON output
+# Storing extracted data in MongoDB and printing structured JSON output
 def store_in_mongo(collection, recurring_collection, extracted_data):
-    """Stores invoice data in MongoDB and prints the final structured JSON output."""
+    """Stores invoice data in MongoDB"""
     if collection.find_one({"email_uid": extracted_data["email_uid"], "sender": extracted_data["sender"], "invoice_number": extracted_data["invoice_number"]}):
         print("Duplicate invoice detected. Skipping storage.")
         return
@@ -159,6 +196,8 @@ def main():
         store_in_mongo(collection, recurring_collection, email_data)
         extracted_invoices.append(email_data)
 
+
+    # printing the final structured JSON output.
     print(f"Extracted ALL Invoice Data: {json.dumps(extracted_invoices, default=str, indent=4)}")
     mail.logout()
     print("************Successfully extracted and stored invoice data from your email. Thank You!************")
