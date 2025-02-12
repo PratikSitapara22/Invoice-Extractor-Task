@@ -45,8 +45,6 @@ python InvoiceExtractor.py
 1. **IMAP Server:** Enter `Gmail` or `Outlook`
 2. **Email Address:** Enter your email address
 3. **Password:** Enter your email password
-   
-   (OR use the ID-Password of Dummy-Gmail provided via personal email on 12/02/2025)
 4. **Filter Type:** Select one of the following:
    - `subject` (to filter emails by subject)
    - `sender` (to filter by email sender)
@@ -67,7 +65,7 @@ python InvoiceExtractor.py
 A `TestData` folder is included in this repository, containing **four sample invoices**:
 - **2 Regular Invoices** (to test normal invoice extraction)
 - **2 Subscription-Based Invoices** (to test recurring invoice classification)
-  
+
 These invoices are for **testing purposes only** and do not contain real data.
 
 ## Future Enhancements
