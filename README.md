@@ -65,6 +65,7 @@ python InvoiceExtractor.py
 A `TestData` folder is included in this repository, containing **four sample invoices**:
 - **2 Regular Invoices** (to test normal invoice extraction)
 - **2 Subscription-Based Invoices** (to test recurring invoice classification)
+  
 These invoices are for **testing purposes only** and do not contain real data.
 
 ## Future Enhancements
